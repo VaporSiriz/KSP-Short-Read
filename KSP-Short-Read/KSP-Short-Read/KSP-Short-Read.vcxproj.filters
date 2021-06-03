@@ -18,5 +18,44 @@
     <ClCompile Include="KSP-Short-Read.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bwt_module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bwt_module.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="reference-NC_045512.fasta">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="covid-19.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="myGenome.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="test.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="covid-19_bwt.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="myGenome_bwt.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="test_bwt.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

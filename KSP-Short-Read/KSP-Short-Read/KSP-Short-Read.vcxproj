@@ -139,7 +139,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bwt_module.cpp" />
+    <ClCompile Include="Common.cpp" />
     <ClCompile Include="KSP-Short-Read.cpp" />
+    <ClCompile Include="bwt_module.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="reference-NC_045512.fasta" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="covid-19.txt" />
+    <Text Include="covid-19_bwt.txt" />
+    <Text Include="myGenome.txt" />
+    <Text Include="myGenome_bwt.txt" />
+    <Text Include="test.txt" />
+    <Text Include="test_bwt.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
