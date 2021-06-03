@@ -32,7 +32,10 @@ int main()
     //make_bwt("myGenome.txt", "myGenome_bwt.txt");
     //cout << (clock() - (double)start) << '\n';
 
-    string s = readFile("test_bwt.txt");
+    string s = readFile("myGenome_bwt.txt");
+    //cout << s << endl;
     BWT bwt = BWT(s);
+    searching(s, "TGAATAGTCAACTACGATGTTTATGACACTGAGGCTCTCCCACAAGCTGGAGCTGCGTAGGTATGTCTACGCC");
     return 0;
 }
+
