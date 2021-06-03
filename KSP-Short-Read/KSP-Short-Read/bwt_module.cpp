@@ -12,13 +12,13 @@ vector<int> BWT::getsfx(string s) {
         for (int i = 0; i < n; i++) cnt[g[min(i + t, n)]]++;
         for (int i = 1; i < lim; i++) cnt[i] += cnt[i - 1];
         for (int idx = n - 1; idx >= 0; idx--) orderToIdx[--cnt[g[min(idx + t, n)]]] = idx;
-        //orderToIdx[x]=idx; => pair¿¡¼­ second±âÁØÀ¸·Î Á¤·ÄÇßÀ» ¶§, second±âÁØÀ¸·Î x¹øÂ°¿¡ ÇØ´çÇÏ´Â index´Â idx¶ó´Â ¶æÀÌ´Ù.
+        //orderToIdx[x]=idx; => pairì—ì„œ secondê¸°ì¤€ìœ¼ë¡œ ì •ë ¬í–ˆì„ ë•Œ, secondê¸°ì¤€ìœ¼ë¡œ xë²ˆì§¸ì— í•´ë‹¹í•˜ëŠ” indexëŠ” idxë¼ëŠ” ëœ»ì´ë‹¤.
 
         cnt.clear(); cnt.resize(lim, 0);
         for (int i = 0; i < n; i++) cnt[g[i]]++;
         for (int i = 1; i < lim; i++) cnt[i] += cnt[i - 1];
         for (int i = n - 1; i >= 0; i--) sfx[--cnt[g[orderToIdx[i]]]] = orderToIdx[i];
-        //sfx[x]=idx; => pair¿¡¼­ second±âÁØÀ¸·Î Á¤·ÄÈÄ first±âÁØÀ¸·Î ´Ù½Ã stable sort¸¦ ÇßÀ» ¶§, ¼ø¼­·Î x¹øÂ°¿¡ ÇØ´çÇÏ´Â ÀÎµ¦½º´Â idx¶ó´Â ¶æÀÌ´Ù.
+        //sfx[x]=idx; => pairì—ì„œ secondê¸°ì¤€ìœ¼ë¡œ ì •ë ¬í›„ firstê¸°ì¤€ìœ¼ë¡œ ë‹¤ì‹œ stable sortë¥¼ í–ˆì„ ë•Œ, ìˆœì„œë¡œ xë²ˆì§¸ì— í•´ë‹¹í•˜ëŠ” ì¸ë±ìŠ¤ëŠ” idxë¼ëŠ” ëœ»ì´ë‹¤.
 
         auto cmp = [&](int i, int j) {
             if (g[i] == g[j]) return g[i + t] < g[j + t];
@@ -115,5 +115,53 @@ vector<int> getsfx(string s) {
     return sfx;
 }
 
+void searching(const string& BWT, string Pattern) {
+    cout << "Searching " << Pattern << endl;
+    string F;//Front
+    //cout << text << endl;
+    F = BWT;
+    sort(F.begin(), F.end());
+    //cout << F << endl;
 
+    //ì´ˆê¸°ê°’ s = 1, e = ì£¼ì–´ì§„ ë¬¸ìì—´ì˜ ê¸¸ì´
+    int s = 1;
+    int e = BWT.length();
+    //íŒ¨í„´ ê¸¸ì´ë§Œí¼ ë°˜ë³µ
+    for (int i = 0; i < Pattern.length(); i++)
+    {
+        s = start(s, Pattern[Pattern.length() - 1 - i], F, BWT);
+        e = end(e, Pattern[Pattern.length() - 1 - i], F, BWT);
+    }
 
+    cout << "F Index From " << s << " to " << e;
+}
+
+int C(char Pi, string F)
+{
+    return F.find(Pi);
+}
+
+int Rank(int index, char Pi, string BWT)
+{
+    int count = 0;
+    for (int i = 0; i < index; i++)
+        if (Pi == BWT[i])
+            count++;
+    //cout << "Count:" << count << endl;
+    return count;
+}
+
+int start(int index, char Pi, string F, string BWT) {
+    int s;
+    //cout << "s = " << index << endl << "P[i] = " << Pi << endl;;
+    s = C(Pi, F) + Rank(index - 1, Pi, BWT) + 1;
+    //cout << C(Pi, F) << "+" << Rank(index - 1, Pi, BWT) << "+1" << endl;
+    return s;
+}
+int end(int index, char Pi, string F, string BWT) {
+    int e;
+    //cout << "e = " << index << endl << "P[i] = " << Pi << endl;;
+    e = C(Pi, F) + Rank(index, Pi, BWT);
+    //cout << C(Pi, F) << "+" << Rank(index, Pi, BWT) << endl;;
+    return e;
+}
