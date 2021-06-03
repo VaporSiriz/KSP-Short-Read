@@ -12,6 +12,7 @@ using std::map;
 using std::pair;
 using std::make_pair;
 using std::cout;
+using std::endl;
 using std::find;
 using std::sort;
 
@@ -30,3 +31,8 @@ public:
 };
 
 vector<int> getsfx(string s);
+void searching(const string& BWT, string Pattern);//BWT, searching Pattern
+int C(char Pi, string F);//C[P[i]] : P[i]보다 앞에 있는 문자의 개수
+int Rank(int index, char Pi, string BWT);//Rank(i, c) : BWT에서 i위치 이전에 문자 c가 나타나는 횟수
+int start(int index, char Pi, string F, string BWT);//C[P[i]] + rank(s - 1, P[i])+1
+int end(int index, char Pi, string F, string BWT);//C[P[i]] + rank(e, P[i])
