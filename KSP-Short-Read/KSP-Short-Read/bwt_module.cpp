@@ -108,14 +108,14 @@ struct by_value {
 string BWT::restore() {
     cout << "ref   : " << ref << '\n';
     cout << "bwt   : " << bwt << '\n';
-    cout << "front : " << front << '\n';
-    for (int i = 0;i < SA.size();i++) cout << ref[SA[i]];
-    cout << '\n';
+    cout << "front : \n" << front << '\n';
+    for (int i = 0;i < bwt.size();i++) cout << front[i] << " : " << bwt[i] << '\n';
+    for (int i = 0;i < SA.size();i++) cout << SA[i] << '\n';
     string rt;
-    rt.resize(bwt.size());
+    rt.resize(ref.size());
     for (int i = 0;i < short_reads.size();i++) {
         cout << "---searching---\n";
-        cout << short_reads[i] << "\n";
+        cout << i << ". " << short_reads[i] << "\n";
         pair<int, int> start_to_end = searching(short_reads[i]);
         if (start_to_end.first == 0 && start_to_end.second == -1) {
             cout << i << " : " << short_reads[i] << '\n';
@@ -123,12 +123,12 @@ string BWT::restore() {
         else {
             indexes.push_back(make_pair(short_reads[i], make_pair(start_to_end.first, start_to_end.second)));
             cout << " => ";
-            int index = SA[start_to_end.first];
+            int index = SA[start_to_end.first-1];
             cout << " index : " << index << ' ';
             for (int j = 0;j < short_reads[i].length();j++) {
                 int location = index+j;
-                rt[location] = short_reads[i].at(j);
-                cout << short_reads[i].at(j);
+                //rt[location] = short_reads[i].at(j);
+                cout << ref[location];//short_reads[i].at(j);
             }
             cout << '\n';
         }
