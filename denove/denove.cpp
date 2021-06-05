@@ -13,27 +13,35 @@ using namespace std;
     몇 번째 행의 무슨 vertax인지 알기 위해서 vertax를 따로 정의
 **/
 
-typedef struct Spectrum { // Spectrum 구조체
-    int mer;
-    vector<string> data;
-} Spectrum;
-
-
 class Euler {
 public:
     vector<vector<int>> graph;
     vector<string> vertax;
-    struct Spectrum s;
+    vector<int> startVertax;
+    // struct Spectrum s;
+    int mer;
     int edgeNum;
 
-    Euler(vector<string> shortReads) {
-        s.mer = shortReads[0].length();
-        s.data = shortReads;
+    Euler(vector<string> shortReads, int mMer) {
+        mer = mMer;
         edgeNum = 0;
-        getGraph();
+        vector<string> spec;
+        for(int i = 0 ; i < shortReads.size() ; i++) { // shortRead 당 spectrum 생성
+            for(int j = 0 ; j < shortReads[i].size() - mer + 1 ; j++) {
+                spec.push_back(shortReads[i].substr(j, mer));
+            }
+            getGraph(spec);
+            spec.clear();
+        }
         cout << "===Graph 생성 완료===" << endl;
         printGraph();
         cout << "Edge 수 : " << edgeNum << endl;
+        cout << "StartVertax Number : ";
+        for(int i = 0 ; i < startVertax.size() ; i++) {
+            cout << startVertax[i] << " ";    
+        }
+        cout << endl;
+        
     }
 
     void restoreSpectrum(vector<string>& result) { // 복원 함수
@@ -48,23 +56,24 @@ public:
         }
         
         // DFS 수행
-        for(int i = 0 ; i < graph.size() ; i++) { // i : 시작 위치
+        for(int i = 0 ; i < startVertax.size() ; i++) { // i : 시작 위치
             if(graph[i].empty()) continue; // 간선이 없는 경우 진행할 수 없으므로
             // mark 초기화
             for(int j = 0 ; j < mark.size() ; j++) {
                 fill(mark[j].begin(), mark[j].end(), false);
             }
             
-            st.push(i); // 시작 위치 push
+            st.push(startVertax[i]); // 시작 위치 push
             DFS(result, mark, st);
         }
     }
 
     void DFS(vector<string>& result, vector<vector<bool>>& mark, stack<int>& st) {
-        // cout << getString(s, vertax, st) << endl;
+        cout << getString(st) << " " << st.size() << " / " << edgeNum+1 << endl;
         int top = st.top();
         if(st.size() == edgeNum + 1) { // 모든 간선을 지났을 때 (+1은 시작지점)
             result.push_back(getString(st));
+            cout << "FIND !!" << endl;
             // 이전 상태로 되돌아가기 (top을 push하기 전으로)
             st.pop();
             // top의 mark Index 계산, graph의 top의 몇 번째 연결되어있는 요소인지
@@ -86,22 +95,21 @@ public:
         }
     }
 
-    void getGraph() { // 그래프 생성 함수
-        string front = (s.data[0]).substr(0, s.mer-1);
-        string back = (s.data[0]).substr(1, s.mer-1);
-
-        // 초기 vertax 설정
-        vertax.push_back(front);
-        vertax.push_back(back);
+    void getGraph(vector<string> spec) { // 그래프 생성 함수
+        string front;
+        string back;
         
         // vertax 생성
-        for(int i = 1 ; i < s.data.size() ; i++) {
-            front = (s.data[i]).substr(0, s.mer-1);
-            back = (s.data[i]).substr(1, s.mer-1);
+        for(int i = 0 ; i < spec.size() ; i++) {
+            front = (spec[i]).substr(0, mer - 1);
+            back = (spec[i]).substr(1, mer - 1);
 
             auto fVertax = find(vertax.begin(), vertax.end(), front); // 앞 부분 ex) ATG => AT
             if(fVertax == vertax.end()) { // 존재하지 않는 경우
                 vertax.push_back(front);
+                if(i == 0) startVertax.push_back(vertax.size()-1);
+            } else if(i == 0 && find(startVertax.begin(), startVertax.end(), distance(vertax.begin(), fVertax)) == startVertax.end()) {
+                startVertax.push_back(distance(vertax.begin(), fVertax));
             }
 
             auto bVertax = find(vertax.begin(), vertax.end(), back); // 뒷 부분 ex) ATG => TG
@@ -112,19 +120,19 @@ public:
 
         // 간선 생성 (그래프 생성)
         graph.resize(vertax.size());
-        for(int i = 0 ; i < s.data.size() ; i++) {
-            front = (s.data[i]).substr(0, s.mer-1);
-            back = (s.data[i]).substr(1, s.mer-1);
+        for(int i = 0 ; i < spec.size() ; i++) {
+            front = (spec[i]).substr(0, mer-1);
+            back = (spec[i]).substr(1, mer-1);
 
             auto fVertax = find(vertax.begin(), vertax.end(), front);
             auto bVertax = find(vertax.begin(), vertax.end(), back);
 
             int fIndex = distance(vertax.begin(), fVertax); // front index
             int bIndex = distance(vertax.begin(), bVertax); // back index
-            if(find(graph[fIndex].begin(), graph[fIndex].end(), bIndex) == graph[fIndex].end()) { // 간선이 연결되어 있지 않은 경우
+            // if(find(graph[fIndex].begin(), graph[fIndex].end(), bIndex) == graph[fIndex].end()) { // 간선이 연결되어 있지 않은 경우
                 graph[distance(vertax.begin(), fVertax)].push_back(distance(vertax.begin(), bVertax));
                 edgeNum++;
-            }
+            // }
         }
     }
 
@@ -164,13 +172,13 @@ int main() {
     vector<string> shortReads;
     string buffer;
 
-    ifstream file("/Users/songhyemin/Documents/과제/알고리즘 실습/프로젝트/short-reads.txt");
+    ifstream file("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/short-reads.txt");
     while (file.peek() != EOF) {
         getline(file, buffer);
         shortReads.push_back(buffer);
     }
     len = shortReads.size();
-    Euler euler(shortReads);
+    Euler euler(shortReads, 3);
     
     // cout << "mer : " << euler.s.mer << endl;
     // for(int i = 0 ; i < euler.s.data.size() ; i++) {
