@@ -1,6 +1,5 @@
 #include "bwt_module.h"
 #include "Common.h"
-#include "Denovo.h"
 #include <time.h>
 using std::cin;
 using std::cout;
