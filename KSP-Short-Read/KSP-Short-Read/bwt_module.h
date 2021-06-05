@@ -18,16 +18,31 @@ using std::sort;
 
 class BWT
 {
+	/* 구하는 순서.
+	* 1. ref을 가지고 SA, bwt를 만듦.
+	* 2. bwt를 가지고 front와 rank, keys 등을 생성.
+	* 2. short_reads를 받아옴.
+	* 
+	* */
 private:
+	string ref;									// ref
 	string bwt;									// bwt string
+	string front;
 	vector<int> bwt_rank;						// bwt rank vector. rank in order of bwt. used by bwt_front[make_pair(bwt[i], bwt_rank[i])]
 	map< pair<char, int>, int> bwt_front;		// bwt front map. ((one of {'A','C','G','T'}, rank), index within bwt)
 	map<char, int> base_max_count;				// base max count ex) 'A':3, 'C':5, 'G':5, 'T':3
 	vector<char> base_keys;						// base keys
-public:
-	BWT(string s);
+	vector<string> short_reads;
+	vector<pair<string, pair<int, int>>> indexes;
+	vector<int> SA;								// suffix array
+	// vector<pair<pair<char, int>, int>> SA;
+public:				
+	void setData(string ref);
+	string makeBWT();
+	void setShortReads(vector<string> short_reads);		// set short reads
 	vector<int> getsfx(string s);
-	int search(string s);
+	pair<int, int> searching(string pattern);	// return pair<start, end>
+	string restore();
 };
 
 vector<int> getsfx(string s);
