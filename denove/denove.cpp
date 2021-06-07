@@ -113,7 +113,7 @@ int main() {
         shortReads.push_back(buffer);
     }
     auto start = system_clock::now();
-    sort(shortReads.begin(), shortReads.end());
+    // sort(shortReads.begin(), shortReads.end());
     // permute(shortReads, 2);
     string result = greedyScs(shortReads, 3);
     auto end = system_clock::now();
