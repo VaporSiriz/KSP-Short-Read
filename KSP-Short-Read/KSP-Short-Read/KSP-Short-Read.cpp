@@ -33,14 +33,23 @@ int main()
     //make_bwt("myGenome.txt", "myGenome_bwt.txt");
     //cout << (clock() - (double)start) << '\n';
 
-    //makeShortReads("test.txt", "test-short-reads.txt", 6, 25);
-
-    string s = readFile("test.txt");
+    //makeShortReads("myGenome.txt", "myGenome-short-reads.txt", 40, 30000);
+    //makeShortReads("covid-19.txt", "covid-19-short-reads.txt", 15, 2000);
+    clock_t start;
+    start = clock();
+    string s = readFile("myGenome.txt") + "$";
+    //string s = readFile("covid-19.txt")+"$";
     BWT bwt = BWT();
     bwt.setData(s);
-    bwt.setShortReads(getShortReads("test-short-reads.txt"));
-    bwt.restore();
-
+    bwt.setShortReads(getShortReads("myGenome-short-reads.txt"));
+    //bwt.setShortReads(getShortReads("covid-19-short-reads.txt"));
+    string restore = bwt.restore();
+    int same = 0;
+    for (int i = 0;i < s.length()-1;i++) {
+        if (s[i] == restore[i]) same++;
+    }
+    cout << (double)same << "/" << (double)s.length() << '\n';
+    cout << (clock() - (double)start) << '\n';
 
     //denovo(getSortReads("covid-19-short-reads.txt"));
     return 0;
