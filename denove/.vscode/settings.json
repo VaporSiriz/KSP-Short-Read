@@ -6,6 +6,14 @@
         "array": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "algorithm": "cpp",
+        "iostream": "cpp",
+        "__split_buffer": "cpp",
+        "deque": "cpp",
+        "__locale": "cpp",
+        "locale": "cpp",
+        "utility": "cpp",
+        "filesystem": "cpp"
     }
 }

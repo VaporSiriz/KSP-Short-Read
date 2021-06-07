@@ -1,195 +1,118 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <string>
 #include <algorithm>
-#include <stack>
-
+#include <utility>
 using namespace std;
 
-/**
-    그래프 구조 : vertax<vertax<int>> // 2차원 배열
-    element1 : next_vertax1, next_vertax2, ...
-    element2 : ...
-    몇 번째 행의 무슨 vertax인지 알기 위해서 vertax를 따로 정의
-**/
+string greedyScs(vector<string> reads, int k);
+int overlap(string s1, string s2, int minLen);
+pair<pair<string, string>, int> selectMaximalOverlap(vector<string> reads, int k);
+vector<pair<string, string>> permute(vector<string> reads, int r);
 
-class Euler {
-public:
-    vector<vector<int>> graph;
-    vector<string> vertax;
-    vector<int> startVertax;
-    // struct Spectrum s;
-    int mer;
-    int edgeNum;
-
-    Euler(vector<string> shortReads, int mMer) {
-        mer = mMer;
-        edgeNum = 0;
-        vector<string> spec;
-        for(int i = 0 ; i < shortReads.size() ; i++) { // shortRead 당 spectrum 생성
-            for(int j = 0 ; j < shortReads[i].size() - mer + 1 ; j++) {
-                spec.push_back(shortReads[i].substr(j, mer));
-            }
-            getGraph(spec);
-            spec.clear();
-        }
-        cout << "===Graph 생성 완료===" << endl;
-        printGraph();
-        cout << "Edge 수 : " << edgeNum << endl;
-        cout << "StartVertax Number : ";
-        for(int i = 0 ; i < startVertax.size() ; i++) {
-            cout << startVertax[i] << " ";    
-        }
-        cout << endl;
-        
+void print(vector<string> reads) {
+    for(int i = 0 ; i < reads.size() ; i++) {
+        cout << reads[i] << endl;
     }
+    cout << endl;
+}
 
-    void restoreSpectrum(vector<string>& result) { // 복원 함수
-        vector<vector<bool>> mark;
-        stack<int> st;
-        int edgeNum = 0; // 간선 개수
-        
-        // mark 초기화
-        mark.resize(graph.size());
-        for(int i = 0 ; i < mark.size() ; i++) {
-            mark[i].resize(graph[i].size(), false);
-        }
-        
-        // DFS 수행
-        for(int i = 0 ; i < startVertax.size() ; i++) { // i : 시작 위치
-            if(graph[i].empty()) continue; // 간선이 없는 경우 진행할 수 없으므로
-            // mark 초기화
-            for(int j = 0 ; j < mark.size() ; j++) {
-                fill(mark[j].begin(), mark[j].end(), false);
-            }
-            
-            st.push(startVertax[i]); // 시작 위치 push
-            DFS(result, mark, st);
-        }
+string greedyScs(vector<string> reads, int k) {
+    pair<pair<string, string>, int> best = selectMaximalOverlap(reads, k);
+    string s1 = best.first.first;
+    string s2 = best.first.second;
+    int olen = best.second;
+    // print(reads);
+    while(olen > 0) {
+        reads.erase(find(reads.begin(), reads.end(), s1));
+        reads.erase(find(reads.begin(), reads.end(), s2));
+        reads.push_back(s1 + s2.substr(olen, s2.length()-olen));
+        // print(reads);
+        best = selectMaximalOverlap(reads, k);
+        s1 = best.first.first;
+        s2 = best.first.second;
+        olen = best.second;
     }
+    string result = "";
+    for(int i = 0 ; i < reads.size() ; i++) {
+        result += reads[i];
+    }
+    return result;
+}
 
-    void DFS(vector<string>& result, vector<vector<bool>>& mark, stack<int>& st) {
-        cout << getString(st) << " " << st.size() << " / " << edgeNum+1 << endl;
-        int top = st.top();
-        if(st.size() == edgeNum + 1) { // 모든 간선을 지났을 때 (+1은 시작지점)
-            result.push_back(getString(st));
-            cout << "FIND !!" << endl;
-            // 이전 상태로 되돌아가기 (top을 push하기 전으로)
-            st.pop();
-            // top의 mark Index 계산, graph의 top의 몇 번째 연결되어있는 요소인지
-            auto markIndex = distance(graph[st.top()].begin(), find(graph[st.top()].begin(), graph[st.top()].end(), top));
-            mark[st.top()][markIndex] = false;
-            return;
+int overlap(string s1, string s2, int minLen) { // minLen : 겹치는 prefix/suffix minLength
+    int start = 0;
+    while(true) {
+        start = s1.find(s2.substr(0, minLen), start);
+        if(start == string::npos) { // can't find
+            return 0;
         }
-        for(int i = 0 ; i < graph[top].size() ; i++) { // 연결된 간선들에 대해
-            if(!mark[top][i]) { // 지나가지 않은 간선이라면
-                st.push(graph[top][i]);
-                mark[top][i] = true;
-                DFS(result, mark, st);
-            }
+
+        string s1Suffix = s1.substr(start, s1.length()-start);
+        string s2Prefix = s2.substr(0, s1Suffix.length());
+        // found, check s1's suffix <-> s2'x prefix
+        if(s1Suffix.compare(s2Prefix) == 0) {
+            return s1.length() - start;
         }
-        st.pop();
-        if(!st.empty()) {
-            auto markIndex = distance(graph[st.top()].begin(), find(graph[st.top()].begin(), graph[st.top()].end(), top));
-            mark[st.top()][markIndex] = false;
+        start += 1;
+    }
+}
+
+vector<pair<string, string>> permute(vector<string> reads, int r) { // r : 순열 요소 개수
+    vector<pair<string, string>> v;
+    string s1, s2;
+    for(int i = 0 ; i < reads.size() ; i++) {
+        s1 = reads[i];
+        for(int j = 0 ; j < reads.size() ; j++) {
+            if(i == j) continue;
+            s2 = reads[j];
+            v.push_back(make_pair(s1, s2));
         }
     }
+    return v;
+}
 
-    void getGraph(vector<string> spec) { // 그래프 생성 함수
-        string front;
-        string back;
-        
-        // vertax 생성
-        for(int i = 0 ; i < spec.size() ; i++) {
-            front = (spec[i]).substr(0, mer - 1);
-            back = (spec[i]).substr(1, mer - 1);
-
-            auto fVertax = find(vertax.begin(), vertax.end(), front); // 앞 부분 ex) ATG => AT
-            if(fVertax == vertax.end()) { // 존재하지 않는 경우
-                vertax.push_back(front);
-                if(i == 0) startVertax.push_back(vertax.size()-1);
-            } else if(i == 0 && find(startVertax.begin(), startVertax.end(), distance(vertax.begin(), fVertax)) == startVertax.end()) {
-                startVertax.push_back(distance(vertax.begin(), fVertax));
-            }
-
-            auto bVertax = find(vertax.begin(), vertax.end(), back); // 뒷 부분 ex) ATG => TG
-            if(bVertax == vertax.end()) { // 존재하지 않는 경우
-                vertax.push_back(back);
-            }
-        }
-
-        // 간선 생성 (그래프 생성)
-        graph.resize(vertax.size());
-        for(int i = 0 ; i < spec.size() ; i++) {
-            front = (spec[i]).substr(0, mer-1);
-            back = (spec[i]).substr(1, mer-1);
-
-            auto fVertax = find(vertax.begin(), vertax.end(), front);
-            auto bVertax = find(vertax.begin(), vertax.end(), back);
-
-            int fIndex = distance(vertax.begin(), fVertax); // front index
-            int bIndex = distance(vertax.begin(), bVertax); // back index
-            // if(find(graph[fIndex].begin(), graph[fIndex].end(), bIndex) == graph[fIndex].end()) { // 간선이 연결되어 있지 않은 경우
-                graph[distance(vertax.begin(), fVertax)].push_back(distance(vertax.begin(), bVertax));
-                edgeNum++;
-            // }
+pair<pair<string, string>, int> selectMaximalOverlap(vector<string> reads, int k) { // 가장 최적의 overlap 찾기
+    string s1;
+    string s2;
+    string bestS1 = "";
+    string bestS2 = "";
+    int bestOlen = 0;
+    int olen;
+    
+    vector<pair<string, string>> permutationList = permute(reads, 2); // 순열 계산
+    for(int i = 0 ; i < permutationList.size() ; i++) {
+        // cout << s1 << " " << s2 << endl;
+        s1 = permutationList[i].first;
+        s2 = permutationList[i].second;
+        olen = overlap(s1, s2, k); // 얼마나 겹치는지
+        if(olen > bestOlen) { // 기존에 최고로 많이 겹친 것보다도 더 겹친다면
+            bestS1 = s1;
+            bestS2 = s2;
+            bestOlen = olen;
         }
     }
+    return make_pair(make_pair(bestS1, bestS2), bestOlen);
+}
 
-    void printGraph() { // 디버깅용 그래프 출력 함수
-        for(int i = 0 ; i < graph.size() ; i++) {
-            cout << vertax[i] << " : ";
-            for(int j = 0 ; j < graph[i].size() ; j++) {
-                cout << vertax[graph[i][j]] << " ";
-            }
-            cout << endl;
-        }
-    }
-
-    string getString(stack<int> st) { // stack으로부터 복원한 string return
-        string result = vertax[st.top()];
-        st.pop();
-        while(!st.empty()) {
-            result = vertax[st.top()].front() + result;
-            st.pop();
-        }
-        return result;
-    }
-
-    void printResult(vector<string>& result) { // 결과 출력 함수
-        cout << "===Result===" << endl;
-        for(auto i = result.begin() ; i != result.end() ; i++) {
-            cout << *i << endl;
-        }
-        if(result.empty()) cout << "EMPTY" << endl;
-    }
-};
 
 int main() {
 
     int len;
-    vector<string> result;
+
     vector<string> shortReads;
     string buffer;
 
-    ifstream file("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/short-reads.txt");
+    ifstream file("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/covid-19-short-reads.txt");
     while (file.peek() != EOF) {
         getline(file, buffer);
         shortReads.push_back(buffer);
     }
-    len = shortReads.size();
-    Euler euler(shortReads, 3);
-    
-    // cout << "mer : " << euler.s.mer << endl;
-    // for(int i = 0 ; i < euler.s.data.size() ; i++) {
-    //     cout << euler.s.data[i] << " ";
-    // }
-    // cout << endl;
-    euler.restoreSpectrum(result);
-    euler.printResult(result);
-    
+    sort(shortReads.begin(), shortReads.end());
+    // permute(shortReads, 2);
+    string result = greedyScs(shortReads, 10);
+    cout << result << endl;
+
     return 0;
 }
-
-
-
