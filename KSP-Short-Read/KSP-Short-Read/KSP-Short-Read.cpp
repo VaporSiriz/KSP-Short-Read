@@ -6,12 +6,8 @@ using std::cout;
 using std::ios;
 using std::to_string;
 
-void make_bwt(string read_file_name, string write_file_name)
-{
-    string s = readFile(read_file_name);
-    vector<int> sfx = getsfx(s);
-    write_bwt(write_file_name, sfx, s);
-}
+const int SNP_DISTANCE = 100;
+const int MISMATCH = 1;
 
 int main()
 {
@@ -33,16 +29,34 @@ int main()
     //make_bwt("myGenome.txt", "myGenome_bwt.txt");
     //cout << (clock() - (double)start) << '\n';
 
-    //makeShortReads("myGenome.txt", "myGenome-short-reads.txt", 40, 30000);
-    //makeShortReads("covid-19.txt", "covid-19-short-reads.txt", 15, 2000);
+    /* SNP 생성 */
+    //vector<int> SNPS = getSNPLocations("test.txt", SNP_DISTANCE);
+    //vector<int> SNPS = getSNPLocations("covid-19.txt", SNP_DISTANCE);
+    vector<int> SNPS = getSNPLocations("GenomeRef.txt", SNP_DISTANCE);
+
+    /* MyGenome 생성 */
+    cout << "==== create MyGenome.txt from GenomeRef.txt ====\n";
+    //makeMyGenome("test.txt", "myGenome.txt", SNPS);
+    //makeMyGenome("covid-19.txt", "myGenome.txt", SNPS);
+    makeMyGenome("GenomeRef.txt", "myGenome.txt", SNPS);
+    cout << "myGenome.txt created Successfully.\n";
+
+    /* Short Reads 생성 */
+    //cout << "==== create Short Reads from myGenome.txt ====\n";
+    //makeShortReads("myGenome.txt", "myGenome-short-reads.txt", 6, 30);
+    // makeShortReads("myGenome.txt", "myGenome-short-reads.txt", 20, 2500);
+    makeShortReads("myGenome.txt", "myGenome-short-reads.txt", 40, 30000);
+    //cout << "myGenome-short-reads.txt created Successfully\n";
+
+    /* bwt를 이용해 short reads 를 원래대로 복원 */
     clock_t start;
     start = clock();
-    string s = readFile("myGenome.txt") + "$";
+    //string s = readFile("test.txt") + "$";
     //string s = readFile("covid-19.txt")+"$";
+    string s = readFile("GenomeRef.txt") + "$";
     BWT bwt = BWT();
-    bwt.setData(s);
+    bwt.setData(s, SNPS, MISMATCH);
     bwt.setShortReads(getShortReads("myGenome-short-reads.txt"));
-    //bwt.setShortReads(getShortReads("covid-19-short-reads.txt"));
     string restore = bwt.restore();
     int same = 0;
     for (int i = 0;i < s.length()-1;i++) {
