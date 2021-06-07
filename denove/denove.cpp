@@ -4,7 +4,10 @@
 #include <string>
 #include <algorithm>
 #include <utility>
+#include <chrono>
+#include <cmath>
 using namespace std;
+using namespace chrono;
 
 string greedyScs(vector<string> reads, int k);
 int overlap(string s1, string s2, int minLen);
@@ -104,15 +107,18 @@ int main() {
     vector<string> shortReads;
     string buffer;
 
-    ifstream file("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/covid-19-short-reads.txt");
+    ifstream file("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/short-reads.txt");
     while (file.peek() != EOF) {
         getline(file, buffer);
         shortReads.push_back(buffer);
     }
+    auto start = system_clock::now();
     sort(shortReads.begin(), shortReads.end());
     // permute(shortReads, 2);
-    string result = greedyScs(shortReads, 10);
+    string result = greedyScs(shortReads, 3);
+    auto end = system_clock::now();
     cout << result << endl;
+    cout << "걸린 시간 : " << duration_cast<duration<double, milli>>(end-start).count() << " milliseconds" << endl;
 
     return 0;
 }
