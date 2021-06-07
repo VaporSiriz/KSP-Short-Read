@@ -107,7 +107,7 @@ int main() {
     vector<string> shortReads;
     string buffer;
 
-    ifstream file("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/short-reads.txt");
+    ifstream file("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/test-short-reads.txt");
     while (file.peek() != EOF) {
         getline(file, buffer);
         shortReads.push_back(buffer);
@@ -119,6 +119,15 @@ int main() {
     auto end = system_clock::now();
     cout << result << endl;
     cout << "걸린 시간 : " << duration_cast<duration<double, milli>>(end-start).count() << " milliseconds" << endl;
+
+    ifstream originalFile("/Users/songhyemin/Documents/GitHub/KSP-Short-Read/denove/test.txt");
+    string original;
+    originalFile >> original;
+    int n;
+    for(int i = 0 ; i < original.length() ; i++) {
+        if(original[i] != result[i]) n++;
+    }
+    cout << "정확도 : " << (double) (original.length()-n) / original.length() * 100 << "%" << endl;
 
     return 0;
 }
